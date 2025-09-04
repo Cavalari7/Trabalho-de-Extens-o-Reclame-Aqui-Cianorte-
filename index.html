@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reclame Aqui Cianorte</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h2>📢 Painel de Denúncias</h2>
+  <p id="usuario-logado"></p>
+  <button onclick="logout()" style="margin-bottom:20px;">Sair</button>
+
+  <!-- Formulário de denúncia -->
+  <form id="form-denuncia">
+    <label>Nome (opcional):</label>
+    <input type="text" id="nome" placeholder="Seu nome"><br>
+
+    <label>Categoria:</label>
+    <select id="categoria" required>
+      <option value="">Selecione...</option>
+      <option value="Trânsito">Trânsito</option>
+      <option value="Lixo">Lixo</option>
+      <option value="Barulho">Barulho</option>
+      <option value="Outros">Outros</option>
+    </select><br>
+
+    <label>Título:</label>
+    <input type="text" id="titulo" placeholder="Título" required><br>
+
+    <label>Descrição:</label>
+    <textarea id="descricao" placeholder="Descreva o problema" required></textarea><br>
+
+    <label>Local:</label>
+    <input type="text" id="local" placeholder="Onde aconteceu?" required><br>
+
+    <label>Data:</label>
+    <input type="date" id="data" required><br>
+
+    <label>Prova (imagem):</label>
+    <input type="file" id="arquivo" accept="image/*"><br>
+
+    <button type="submit">Enviar Denúncia</button>
+  </form>
+
+  <!-- Botão limpar denúncias (apenas admin) -->
+  <div style="margin:20px 0;">
+    <button onclick="limparDenuncias()" style="background-color:#d9534f;">🗑️ Limpar todas as denúncias</button>
+  </div>
+
+  <h2>Últimas Denúncias</h2>
+  <div id="lista-denuncias"></div>
+
+  <h2>Todas as denúncias</h2>
+  <div id="todas-denuncias"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script src="firebase-config.js"></script>
+<script src="denuncias-auth.js"></script>
+</body>
+</html>
