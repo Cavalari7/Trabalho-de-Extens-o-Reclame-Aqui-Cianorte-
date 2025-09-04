@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reclame Aqui Cianorte</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h2 id="titulo">Login</h2>
+
+  <!-- Imagem da cidade -->
+  <div style="text-align:center; margin: 20px 0;">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjsRViprYaP3zCUortxtD-Nn862mA2TTtZNg&s" 
+         alt="Cidade de Cianorte" 
+         style="max-width: 80%; height: auto; border-radius:10px;">
+  </div>
+
+  <!-- LOGIN -->
+  <div id="loginForm">
+    <input type="email" id="emailLogin" placeholder="E-mail">
+    <input type="password" id="senhaLogin" placeholder="Senha">
+    <button id="btnLogin" onclick="login()">Entrar</button>
+    <button id="btnGoogleLogin" onclick="loginGoogle()" class="google-btn">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="google-logo" alt="Google Logo">
+      Continuar com o Google
+    </button>
+    <p class="msg" id="loginMsg"></p>
+    <p class="toggle" onclick="showCadastro()">Ainda não tem conta? Cadastre-se</p>
+  </div>
+
+  <!-- CADASTRO -->
+  <div id="cadastroForm" style="display:none;">
+    <input type="text" id="nomeCadastro" placeholder="Nome completo">
+    <input type="email" id="emailCadastro" placeholder="E-mail">
+    <input type="password" id="senhaCadastro" placeholder="Senha (mínimo 6 caracteres)">
+    <button id="btnCadastro" onclick="cadastrar()">Cadastrar</button>
+    <button id="btnGoogleCadastro" onclick="loginGoogle()" class="google-btn">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="google-logo" alt="Google Logo">
+      Continuar com o Google
+    </button>
+    <p class="msg" id="cadastroMsg"></p>
+    <p class="toggle" onclick="showLogin()">Já tem conta? Faça login</p>
+  </div>
+
+  <!-- PAINEL DE DENÚCIAS -->
+  <div id="painelDenuncias" style="display:none;">
+    <p id="usuario-logado"></p>
+    <button onclick="logout()" style="margin-bottom:20px;">Sair</button>
+
+    <form id="form-denuncia">
+      <input type="text" id="nome" placeholder="Nome (opcional)">
+      <select id="categoria" required>
+        <option value="">Selecione...</option>
+        <option value="Trânsito">Trânsito</option>
+        <option value="Lixo">Lixo</option>
+        <option value="Barulho">Barulho</option>
+        <option value="Outros">Outros</option>
+      </select>
+      <input type="text" id="tituloDenuncia" placeholder="Título" required>
+      <textarea id="descricao" placeholder="Descreva o problema" required></textarea>
+      <input type="text" id="local" placeholder="Onde aconteceu?" required>
+      <input type="date" id="data" required>
+      <input type="file" id="arquivo" accept="image/*">
+      <button type="submit">Enviar Denúncia</button>
+    </form>
+
+    <h2>Últimas Denúncias</h2>
+    <div id="lista-denuncias"></div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+
+<script>
+  // --- Alternar formulários ---
+  function showLogin(){ document.getElementById("loginForm").style.display="block"; document.getElementById("cadastroForm").style.display="none"; document.getElementById("titulo").textContent="Login"; }
+  function showCadastro(){ document.getElementById("loginForm").style.display="none"; document.getElementById("cadastroForm").style.display="block"; document.getElementById("titulo").textContent="Cadastro"; }
+
+  // --- Mensagens ---
+  function showMessage(id,text,type="error"){ const el=document.getElementById(id); el.textContent=text; el.className="msg "+type; }
+
+  // --- Login ---
+  async function login(){
+    const email=document.getElementById("emailLogin").value.trim();
+    const senha=document.getElementById("senhaLogin").value.trim();
+    const btn=document.getElementById("btnLogin");
+    if(!email||!senha){ showMessage("loginMsg","Preencha todos os campos!"); return; }
+    btn.disabled=true; showMessage("loginMsg","Aguarde...","success");
+    try{
+      const cred=await auth.signInWithEmailAndPassword(email,senha);
+      mostrarPainel(cred.user);
+    }catch(err){ showMessage("loginMsg","Erro: "+err.message); }
+    finally{ btn.disabled=false; }
+  }
+
+  // --- Cadastro ---
+  async function cadastrar(){
+    const nome=document.getElementById("nomeCadastro").value.trim();
+    const email=document.getElementById("emailCadastro").value.trim();
+    const senha=document.getElementById("senhaCadastro").value.trim();
+    const btn=document.getElementById("btnCadastro");
+    if(!nome||!email||!senha){ showMessage("cadastroMsg","Preencha todos os campos!"); return; }
+    if(senha.length<6){ showMessage("cadastroMsg","A senha deve ter pelo menos 6 caracteres!"); return; }
+    btn.disabled=true; showMessage("cadastroMsg","Aguarde...","success");
+    try{
+      const cred=await auth.createUserWithEmailAndPassword(email,senha);
+      const snapshot=await db.collection("usuarios").get();
+      let role = snapshot.empty ? "admin" : "usuario";
+      await db.collection("usuarios").doc(cred.user.uid).set({ nome,email,role,criadoEm:new Date() });
+      showMessage("cadastroMsg","✅ Cadastro realizado com sucesso!","success");
+      mostrarPainel(cred.user);
+    }catch(err){
+      if(err.code==="auth/email-already-in-use"){ loginExistente(email,senha); }
+      else{ showMessage("cadastroMsg","Erro: "+err.message); }
+    }finally{ btn.disabled=false; }
+  }
+
+  async function loginExistente(email,senha){
+    try{
+      const cred=await auth.signInWithEmailAndPassword(email,senha);
+      mostrarPainel(cred.user);
+    }catch(err){ showMessage("cadastroMsg","Erro ao fazer login: "+err.message); }
+  }
+
+  // --- Google ---
+  function loginGoogle(){ const provider=new firebase.auth.GoogleAuthProvider(); auth.signInWithRedirect(provider); }
+  auth.getRedirectResult().then(async result=>{
+    if(result.user){
+      const user=result.user;
+      const userDoc=await db.collection("usuarios").doc(user.uid).get();
+      if(!userDoc.exists){
+        const snapshot=await db.collection("usuarios").get();
+        let role=snapshot.empty?"admin":"usuario";
+        await db.collection("usuarios").doc(user.uid).set({ nome:user.displayName,email:user.email,role,criadoEm:new Date() });
+      }
+      mostrarPainel(user);
+    }
+  }).catch(err=>console.error("Erro Google:",err.message));
+
+  // --- Painel de denúncias ---
+  const listaDenuncias=document.getElementById("lista-denuncias");
+  function mostrarPainel(user){
+    document.getElementById("loginForm").style.display="none";
+    document.getElementById("cadastroForm").style.display="none";
+    document.getElementById("painelDenuncias").style.display="block";
+    document.getElementById("usuario-logado").textContent=`Logado como: ${user.email}`;
+    carregarDenunciasFirestore();
+  }
+
+  function logout(){ auth.signOut().then(()=>location.reload()); }
+
+  // --- Criar denúncia ---
+  const form=document.getElementById("form-denuncia");
+  form.addEventListener("submit",async e=>{
+    e.preventDefault();
+    if(!auth.currentUser) return alert("Você precisa estar logado!");
+    const arquivo=document.getElementById("arquivo").files[0];
+    let comprovanteDataUrl="";
+    if(arquivo && arquivo.type.startsWith("image/")){
+      const reader=new FileReader();
+      reader.onload=async event=>{
+        comprovanteDataUrl=event.target.result;
+        await salvarDenunciaFirestore(comprovanteDataUrl);
+      };
+      reader.readAsDataURL(arquivo);
+    } else { await salvarDenunciaFirestore(""); }
+    form.reset();
+  });
+
+  async function salvarDenunciaFirestore(comprovante){
+    const denuncia={
+      nome: document.getElementById("nome").value || "Anônimo",
+      categoria: document.getElementById("categoria").value,
+      titulo: document.getElementById("tituloDenuncia").value,
+      descricao: document.getElementById("descricao").value,
+      local: document.getElementById("local").value,
+      data: document.getElementById("data").value,
+      comprovanteDataUrl: comprovante,
+      comentarios: [],
+      criadoEm: new Date()
+    };
+    await db.collection("denuncias").add(denuncia);
+    carregarDenunciasFirestore();
+  }
+
+  // --- Carregar denúncias ---
+  function criarHTMLDenuncia(d,id){
+    let imagemHTML="";
+    if(d.comprovanteDataUrl){ imagemHTML=`<br><a href="${d.comprovanteDataUrl}" target="_blank"><img src="${d.comprovanteDataUrl}" style="height:120px;border-radius:6px;margin-top:10px;cursor:pointer;"></a>`; }
+    let comentariosHTML="";
+    if(d.comentarios && d.comentarios.length){
+      comentariosHTML="<strong>Comentários:</strong><br>";
+      d.comentarios.forEach(c=>{ comentariosHTML+=`<small>${c.autor} (${c.data}): ${c.texto}</small><br>`; });
+    }
+    const inputComentario=`<input type="text" id="comentario-${id}" placeholder="Escreva um comentário...">
+      <button onclick="adicionarComentario('${id}', document.getElementById('comentario-${id}').value)">Comentar</button>`;
+    return `<div class="denuncia">
+      <strong>${d.titulo} (${d.categoria})</strong><br>
+      ${d.descricao}<br>
+      <em>${d.local} - ${d.data}</em><br>
+      <small>Autor: ${d.nome}</small>
+      ${imagemHTML}<hr>
+      ${comentariosHTML}
+      ${inputComentario}<hr>
+    </div>`;
+  }
+
+  async function carregarDenunciasFirestore(){
+    const snapshot=await db.collection("denuncias").orderBy("criadoEm","desc").get();
+    listaDenuncias.innerHTML="";
+    snapshot.forEach(doc=>{
+      const d=doc.data();
+      listaDenuncias.innerHTML+=criarHTMLDenuncia(d,doc.id);
+    });
+  }
+
+  async function adicionarComentario(denunciaId,texto){
+    if(!auth.currentUser) return alert("Você precisa estar logado para comentar!");
+    if(!texto.trim()) return;
+    const comentario={ autor: auth.currentUser.displayName || auth.currentUser.email, texto: texto.trim(), data: new Date().toLocaleString() };
+    const denunciaRef=db.collection("denuncias").doc(denunciaId);
+    await denunciaRef.update({ comentarios: firebase.firestore.FieldValue.arrayUnion(comentario) });
+    carregarDenunciasFirestore();
+  }
+</script>
+</body>
+</html>
