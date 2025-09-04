@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reclame Cianorte</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>📢 Reclame Aqui Cianorte</h1>
+
+<img src="https://mir-s3-cdn-cf.behance.net/projects/404/b4c29a24260683.Y3JvcCw0MDQsMzE2LDAsMA.png" alt="Cidade de Cianorte" style="width:20%; max-height:300px; object-fit:cover; border-radius:10px; margin-bottom:20px;">
+
+<!-- Formulário de denúncia -->
+<form id="form-denuncia">
+  <label>Nome (opcional):</label>
+  <input type="text" id="nome" placeholder="Seu nome"><br>
+
+  <label>Categoria:</label>
+  <select id="categoria" required>
+    <option value="">Selecione...</option>
+    <option value="Trânsito">Trânsito</option>
+    <option value="Lixo">Lixo</option>
+    <option value="Barulho">Barulho</option>
+    <option value="Outros">Outros</option>
+  </select><br>
+
+  <label>Título:</label>
+  <input type="text" id="titulo" placeholder="Título" required><br>
+
+  <label>Descrição:</label>
+  <textarea id="descricao" placeholder="Descreva o problema" required></textarea><br>
+
+  <label>Local:</label>
+  <input type="text" id="local" placeholder="Onde aconteceu?" required><br>
+
+  <label>Data:</label>
+  <input type="date" id="data" required><br>
+
+  <label>Prova (imagem):</label>
+  <input type="file" id="arquivo" accept="image/*"><br>
+
+  <button type="submit">Enviar Denúncia</button>
+</form>
+
+<!-- Botões de administração local -->
+<div style="margin:20px 0;">
+  <button onclick="limparDenuncias()" style="background-color:#d9534f;">🗑️ Limpar todas as denúncias</button>
+</div>
+
+<h2>Últimas Denúncias</h2>
+<div id="lista-denuncias"></div>
+
+<h2>Todas as denúncias</h2>
+<div id="todas-denuncias"></div>
+
+<footer>
+  &copy; 2025 Reclame Cianorte
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
