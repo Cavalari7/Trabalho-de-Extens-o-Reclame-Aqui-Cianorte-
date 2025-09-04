@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reclame Aqui Cianorte</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <!-- Título dinâmico -->
+  <h2 id="titulo">Login</h2>
+
+<!-- Imagem da cidade -->
+<div style="text-align:center; margin: 20px 0;">
+  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjsRViprYaP3zCUortxtD-Nn862mA2TTtZNg&s" alt="Cidade de Cianorte" style="max-width: 80%; height: auto; border-radius:10px;">
+</div>
+
+<!-- Título colorido "RECLAME AQUI CIANORTE" -->
+<h1 style="text-align:center; font-size:32px; font-weight:bold; margin:20px 0; letter-spacing:2px;">
+  <span style="color:#FF0000;">R</span>
+  <span style="color:#FF7F00;">E</span>
+  <span style="color:#FFFF00;">C</span>
+  <span style="color:#00FF00;">L</span>
+  <span style="color:#0000FF;">A</span>
+  <span style="color:#4B0082;">M</span>
+  <span style="color:#8B00FF;">E</span>
+  &nbsp;
+  <span style="color:#FF0000;">A</span>
+  <span style="color:#FF7F00;">Q</span>
+  <span style="color:#FFFF00;">U</span>
+  <span style="color:#00FF00;">I</span>
+  &nbsp;
+  <span style="color:#0000FF;">C</span>
+  <span style="color:#4B0082;">I</span>
+  <span style="color:#8B00FF;">A</span>
+  <span style="color:#FF0000;">N</span>
+  <span style="color:#FF7F00;">O</span>
+  <span style="color:#FFFF00;">R</span>
+  <span style="color:#00FF00;">T</span>
+  <span style="color:#0000FF;">E</span>
+</h1>
+
+
+  <!-- LOGIN -->
+  <div id="loginForm">
+    <input type="email" id="emailLogin" placeholder="E-mail">
+    <input type="password" id="senhaLogin" placeholder="Senha">
+    <button id="btnLogin" onclick="login()">Entrar</button>
+    <button id="btnGoogleLogin" onclick="loginGoogle()" class="google-btn">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="google-logo" alt="Google Logo">
+      Continuar com o Google
+    </button>
+    <p class="msg" id="loginMsg"></p>
+    <p class="toggle" onclick="showCadastro()">Ainda não tem conta? Cadastre-se</p>
+  </div>
+
+  <!-- CADASTRO -->
+  <div id="cadastroForm" style="display:none;">
+    <input type="text" id="nomeCadastro" placeholder="Nome completo">
+    <input type="email" id="emailCadastro" placeholder="E-mail">
+    <input type="password" id="senhaCadastro" placeholder="Senha (mínimo 6 caracteres)">
+    <button id="btnCadastro" onclick="cadastrar()">Cadastrar</button>
+    <button id="btnGoogleCadastro" onclick="loginGoogle()" class="google-btn">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="google-logo" alt="Google Logo">
+      Continuar com o Google
+    </button>
+    <p class="msg" id="cadastroMsg"></p>
+    <p class="toggle" onclick="showLogin()">Já tem conta? Faça login</p>
+  </div>
+
+  <!-- PAINEL DE DENÚCIAS (inicialmente escondido) -->
+  <div id="painelDenuncias" style="display:none;">
+    <p id="usuario-logado"></p>
+    <button onclick="logout()" style="margin-bottom:20px;">Sair</button>
+
+    <form id="form-denuncia">
+      <label>Nome (opcional):</label>
+      <input type="text" id="nome" placeholder="Seu nome"><br>
+
+      <label>Categoria:</label>
+      <select id="categoria" required>
+        <option value="">Selecione...</option>
+        <option value="Trânsito">Trânsito</option>
+        <option value="Lixo">Lixo</option>
+        <option value="Barulho">Barulho</option>
+        <option value="Outros">Outros</option>
+      </select><br>
+
+      <label>Título:</label>
+      <input type="text" id="tituloDenuncia" placeholder="Título" required><br>
+
+      <label>Descrição:</label>
+      <textarea id="descricao" placeholder="Descreva o problema" required></textarea><br>
+
+      <label>Local:</label>
+      <input type="text" id="local" placeholder="Onde aconteceu?" required><br>
+
+      <label>Data:</label>
+      <input type="date" id="data" required><br>
+
+      <label>Prova (imagem):</label>
+      <input type="file" id="arquivo" accept="image/*"><br>
+
+      <button type="submit">Enviar Denúncia</button>
+    </form>
+
+    <div style="margin:20px 0;">
+      <button onclick="limparDenuncias()" style="background-color:#d9534f;">🗑️ Limpar todas as denúncias</button>
+    </div>
+
+    <h2>Últimas Denúncias</h2>
+    <div id="lista-denuncias"></div>
+
+    <h2>Todas as denúncias</h2>
+    <div id="todas-denuncias"></div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+
+<!-- Script unificado -->
+<script src="app.js"></script>
+</body>
+</html>
