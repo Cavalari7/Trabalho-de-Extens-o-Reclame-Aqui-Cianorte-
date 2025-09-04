@@ -1,0 +1,1 @@
+Isso é um site para o Projeto de Extensão, esse site foi criado com o intuito de ajudar as pessoas a compartilharem situações inadmissíveis que acontecem nos bairros de Cianorte, assim elas conseguem expor tudo de errado que existe na sociedade cianortense, e também faz os políticos refletirem e tomarem atitudes que beneficiem a população.
